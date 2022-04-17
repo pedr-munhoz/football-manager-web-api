@@ -18,7 +18,11 @@ public class AthletesService
     public async Task<ServiceListResult<Athlete>> List(OffsetViewModel offset)
     {
         var count = await _dbContext.Athletes.LongCountAsync();
-        var itens = await _dbContext.Athletes.Skip(offset.Index).Take(offset.Length ?? 10).ToListAsync();
+        var itens = await _dbContext.Athletes
+            .OrderBy(x => x.Id)
+            .Skip(offset.Index)
+            .Take(offset.Length ?? 10)
+            .ToListAsync();
 
         return new ServiceListResult<Athlete>(itens, count);
     }

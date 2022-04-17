@@ -39,4 +39,11 @@ public class AthletesController : ControllerBase
         var result = new AthleteResult(entity);
         return Ok(result);
     }
+
+    [HttpDelete, Route("{id}")]
+    public async Task<IActionResult> Remove([FromRoute] string id)
+    {
+        await Task.CompletedTask;
+        return NoContent();
+    }
 }

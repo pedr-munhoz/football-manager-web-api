@@ -34,4 +34,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.UseCors(policy => policy
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .SetIsOriginAllowed(origin => true)
+    .AllowCredentials()
+    .WithExposedHeaders("Content-Disposition"));
+
 app.Run();

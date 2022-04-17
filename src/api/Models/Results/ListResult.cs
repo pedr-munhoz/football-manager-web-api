@@ -2,12 +2,12 @@ namespace api.Models.Results;
 
 public class ListResult<T>
 {
-    public ListResult(List<T> itens, int count)
+    public ListResult(IEnumerable<T>? itens, long count)
     {
-        Itens = itens;
+        Itens = itens ?? new List<T>();
         Count = count;
     }
 
-    public List<T> Itens { get; set; } = new List<T>();
-    public int Count { get; set; }
+    public IEnumerable<T> Itens { get; set; } = new List<T>();
+    public long Count { get; set; }
 }

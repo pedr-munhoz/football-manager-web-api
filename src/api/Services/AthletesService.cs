@@ -15,6 +15,14 @@ public class AthletesService
         _dbContext = dbContext;
     }
 
+    public async Task<ServiceListResult<Athlete>> List(OffsetViewModel offset)
+    {
+        var count = await _dbContext.Athletes.LongCountAsync();
+        var itens = await _dbContext.Athletes.Skip(offset.Index).Take(offset.Length ?? 10).ToListAsync();
+
+        return new ServiceListResult<Athlete>(itens, count);
+    }
+
     public async Task<ServiceResult<Athlete>> Create(AthleteViewModel model)
     {
         var entity = model.Map();
@@ -23,13 +31,6 @@ public class AthletesService
         await _dbContext.SaveChangesAsync();
 
         return new ServiceResult<Athlete>(entity);
-    }
-
-    public async Task<ServiceListResult<Athlete>> List(OffsetViewModel offset)
-    {
-        var itens = await _dbContext.Athletes.Skip(offset.Index).Take(offset.Length ?? 10).ToListAsync();
-
-        return new ServiceListResult<Athlete>(itens, 0);
     }
 
     public async Task<ServiceResult<Athlete>> Update(AthleteViewModel model)

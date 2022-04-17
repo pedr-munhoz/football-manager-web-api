@@ -19,7 +19,13 @@ public class AthletesController : ControllerBase
     [HttpGet, Route("")]
     public async Task<IActionResult> Get([FromQuery] OffsetViewModel model)
     {
-        var result = await _service.List(model);
+        var serviceResult = await _service.List(model);
+
+        var result = new ListResult<AthleteResult>(
+            serviceResult.Content?.Select(x => new AthleteResult(x)),
+            serviceResult.Count
+        );
+
         return Ok(result);
     }
 
@@ -27,14 +33,24 @@ public class AthletesController : ControllerBase
     public async Task<IActionResult> Create([FromBody] AthleteViewModel model)
     {
         var result = await _service.Create(model);
-        return Created($"/{result.Content?.Id}", result);
+
+        if (result.Success && result.Content != null)
+            return Created($"/{result.Content.Id}", new AthleteResult(result.Content));
+
+        return UnprocessableEntity(result.Error);
     }
 
     [HttpPut, Route("")]
     public async Task<IActionResult> Update([FromBody] AthleteViewModel model)
     {
         var result = await _service.Update(model);
-        return Ok(result);
+
+        if (result.Success && result.Content != null)
+            return Ok(new AthleteResult(result.Content));
+        else if (result.Error != null && result.Error.Code == 404)
+            return NotFound(result.Error);
+
+        return UnprocessableEntity(result.Error);
     }
 
     [HttpDelete, Route("{id}")]

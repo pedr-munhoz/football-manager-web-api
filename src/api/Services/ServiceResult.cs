@@ -28,9 +28,10 @@ public class ServiceResult<T> : ServiceResult
 
 public class ServiceListResult<T> : ServiceResult
 {
-    public ServiceListResult(List<T> content, int count) : base(success: true)
+    public ServiceListResult(List<T> content, long count) : base(success: true)
     {
         Content = content;
+        Count = count;
     }
 
     public ServiceListResult(ServiceError error) : base(success: false, error)
@@ -38,5 +39,5 @@ public class ServiceListResult<T> : ServiceResult
     }
 
     public List<T>? Content { get; set; }
-    public int Count { get; set; }
+    public long Count { get; set; }
 }

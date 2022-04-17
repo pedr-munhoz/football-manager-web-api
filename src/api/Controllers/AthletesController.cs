@@ -1,5 +1,6 @@
 using api.Models.Results;
 using api.Models.ViewModels;
+using api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
@@ -8,42 +9,42 @@ namespace api.Controllers;
 [Route("api/v1/[controller]")]
 public class AthletesController : ControllerBase
 {
+    private readonly AthletesService _service;
+
+    public AthletesController(AthletesService service)
+    {
+        _service = service;
+    }
+
     [HttpGet, Route("")]
     public async Task<IActionResult> Get([FromQuery] OffsetViewModel model)
     {
-        await Task.CompletedTask;
-        var itens = new List<AthleteResult>();
-        for (int i = 0; i < (model.Length ?? 30); i++)
-        {
-            itens.Add(new AthleteResult());
-        }
-
-        var result = new ListResult<AthleteResult>(itens, itens.Count + new Random().Next(100));
+        var result = await _service.List(model);
         return Ok(result);
     }
 
     [HttpPost, Route("")]
     public async Task<IActionResult> Create([FromBody] AthleteViewModel model)
     {
-        await Task.CompletedTask;
-        var entity = model.Map();
-        var result = new AthleteResult(entity);
-        return Created($"/{result.Id}", result);
+        var result = await _service.Create(model);
+        return Created($"/{result.Content?.Id}", result);
     }
 
     [HttpPut, Route("")]
     public async Task<IActionResult> Update([FromBody] AthleteViewModel model)
     {
-        await Task.CompletedTask;
-        var entity = model.Map();
-        var result = new AthleteResult(entity);
+        var result = await _service.Update(model);
         return Ok(result);
     }
 
     [HttpDelete, Route("{id}")]
     public async Task<IActionResult> Remove([FromRoute] string id)
     {
-        await Task.CompletedTask;
-        return NoContent();
+        var result = await _service.Remove(id);
+
+        if (result.Success)
+            return NoContent();
+
+        return NotFound(result.Error);
     }
 }

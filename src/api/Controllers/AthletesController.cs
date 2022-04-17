@@ -9,10 +9,16 @@ namespace api.Controllers;
 public class AthletesController : ControllerBase
 {
     [HttpGet, Route("")]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get([FromQuery] OffsetViewModel model)
     {
         await Task.CompletedTask;
-        var result = new List<AthleteResult> { new AthleteResult() };
+        var itens = new List<AthleteResult>();
+        for (int i = 0; i < (model.Length ?? 30); i++)
+        {
+            itens.Add(new AthleteResult());
+        }
+
+        var result = new ListResult<AthleteResult>(itens, itens.Count + new Random().Next(100));
         return Ok(result);
     }
 

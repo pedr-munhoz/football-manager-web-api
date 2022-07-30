@@ -12,6 +12,7 @@ builder.Services.AddDbContext<ServerDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
 
+builder.Services.AddCors();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -19,7 +20,15 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<AthletesService>();
 
+
 var app = builder.Build();
+
+app.UseCors(policy => policy
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials()
+                .WithExposedHeaders("Content-Disposition"));
 
 DatabaseManagementService.MigrationInitialisation(app);
 

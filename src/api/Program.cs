@@ -19,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<AthletesService>();
+builder.Services.AddTransient<GamesService>();
 
 
 var app = builder.Build();

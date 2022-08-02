@@ -7,5 +7,6 @@ public class ServerDbContext : DbContext
 {
     public ServerDbContext(DbContextOptions options) : base(options) { }
 
-    public DbSet<Athlete> Athletes { get; set; }
+    public DbSet<Athlete> Athletes { get; set; } = null!;
+    public DbSet<Game> Games { get; set; } = null!;
 }

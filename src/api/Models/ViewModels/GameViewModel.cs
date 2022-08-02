@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using api.Infrastructure.Extensions;
 using api.Models.Entities;
 
 namespace api.Models.ViewModels;
@@ -21,7 +22,7 @@ public class GameViewModel
     {
         return new Game
         {
-            Date = Date,
+            Date = Date.SetKindUtc(),
             HomeTeam = HomeTeam,
             AwayTeam = AwayTeam,
             Location = Location,

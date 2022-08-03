@@ -11,4 +11,5 @@ public class Athlete
     public bool RunningBack { get; set; }
     public bool TightEnd { get; set; }
     public bool Reciever { get; set; }
+    public ICollection<Game> Games { get; set; } = null!;
 }

@@ -10,11 +10,9 @@ namespace api.Models.Results
 
         public GameDetailResult(Game entity) : base(entity)
         {
-            HomeTeamAthletes = entity.HomeTeamAthletes.Select(x => new AthleteResult(x)).ToList();
-            AwayTeamAthletes = entity.AwayTeamAthletes.Select(x => new AthleteResult(x)).ToList();
+            Athletes = entity.Athletes.Select(x => new AthleteResult(x)).ToList();
         }
 
-        public ICollection<AthleteResult> HomeTeamAthletes { get; set; } = null!;
-        public ICollection<AthleteResult> AwayTeamAthletes { get; set; } = null!;
+        public ICollection<AthleteResult> Athletes { get; set; } = null!;
     }
 }

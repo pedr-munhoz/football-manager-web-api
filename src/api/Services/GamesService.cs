@@ -28,8 +28,7 @@ public class GamesService
         var id = stringId.ToLongId();
 
         var entity = await _dbContext.Games
-            .Include(x => x.AwayTeamAthletes)
-            .Include(x => x.HomeTeamAthletes)
+            .Include(x => x.Athletes)
             .Where(x => x.Id == id)
             .FirstOrDefaultAsync();
 
@@ -76,7 +75,7 @@ public class GamesService
         return new ServiceResult<Game>(entity);
     }
 
-    public async Task<ServiceResult<Game>> AddAthlete(string gameId, string athleteId, bool isHomeTeam)
+    public async Task<ServiceResult<Game>> AddAthlete(string gameId, string athleteId)
     {
         ArgumentNullException.ThrowIfNull(gameId);
         ArgumentNullException.ThrowIfNull(athleteId);
@@ -85,8 +84,7 @@ public class GamesService
         var athleteIdLong = athleteId.ToLongId();
 
         var game = await _dbContext.Games
-            .Include(x => x.HomeTeamAthletes)
-            .Include(x => x.AwayTeamAthletes)
+            .Include(x => x.Athletes)
             .Where(x => x.Id == gameIdLong)
             .FirstOrDefaultAsync();
 
@@ -106,27 +104,16 @@ public class GamesService
             return new ServiceResult<Game>(error);
         }
 
-        if (game.HomeTeamAthletes.Any(x => x.Id == athleteIdLong))
+        if (game.Athletes.Any(x => x.Id == athleteIdLong))
         {
-            var error = new ServiceError($"{typeof(Athlete).Name} already exists", $"{typeof(Athlete).Name} with id: {athleteIdLong} already exists on the home team in {typeof(Game).Name} with id: {gameIdLong}", 400);
+            var error = new ServiceError($"{typeof(Athlete).Name} already exists", $"{typeof(Athlete).Name} with id: {athleteIdLong} already exists in {typeof(Game).Name} with id: {gameIdLong}", 400);
             return new ServiceResult<Game>(error);
         }
 
-        if (game.AwayTeamAthletes.Any(x => x.Id == athleteIdLong))
-        {
-            var error = new ServiceError($"{typeof(Athlete).Name} already exists", $"{typeof(Athlete).Name} with id: {athleteIdLong} already exists on the away team in {typeof(Game).Name} with id: {gameIdLong}", 400);
-            return new ServiceResult<Game>(error);
-        }
-
-        await AddAthleteToTeam(team: isHomeTeam ? game.HomeTeamAthletes : game.AwayTeamAthletes, athlete: athlete);
+        game.Athletes.Add(athlete);
+        await _dbContext.SaveChangesAsync();
 
         return new ServiceResult<Game>(game);
-    }
-
-    private async Task AddAthleteToTeam(ICollection<Athlete> team, Athlete athlete)
-    {
-        team.Add(athlete);
-        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<ServiceResult<Game>> Remove(string stringId)

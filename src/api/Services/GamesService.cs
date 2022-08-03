@@ -143,7 +143,7 @@ public class GamesService
             return new ServiceResult<Game>(error);
         }
 
-        game.Athletes.Add(athlete);
+        game.Athletes.Remove(athlete);
         await _dbContext.SaveChangesAsync();
 
         return new ServiceResult<Game>(game);

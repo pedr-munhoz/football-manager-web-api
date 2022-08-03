@@ -29,6 +29,17 @@ public class GamesController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet, Route("{id}")]
+    public async Task<IActionResult> Get([FromRoute] string id)
+    {
+        var result = await _service.Find(id);
+
+        if (result.Success && result.Content != null)
+            return Created($"/{result.Content.Id}", new GameDetailResult(result.Content));
+
+        return NotFound(result.Error);
+    }
+
     [HttpPost, Route("")]
     public async Task<IActionResult> Create([FromBody] GameViewModel model)
     {
@@ -60,7 +71,7 @@ public class GamesController : ControllerBase
         var result = await _service.AddAthlete(gameId, athleteId, isHomeTeam: true);
 
         if (result.Success && result.Content != null)
-            return Ok(new GameResult(result.Content));
+            return Ok(new GameDetailResult(result.Content));
 
         return UnprocessableEntity(result.Error);
     }
@@ -71,7 +82,7 @@ public class GamesController : ControllerBase
         var result = await _service.AddAthlete(gameId, athleteId, isHomeTeam: false);
 
         if (result.Success && result.Content != null)
-            return Ok(new GameResult(result.Content));
+            return Ok(new GameDetailResult(result.Content));
 
         return UnprocessableEntity(result.Error);
     }

@@ -23,6 +23,25 @@ public class GamesService
         return new ServiceListResult<Game>(itens, count);
     }
 
+    public async Task<ServiceResult<Game>> Find(string stringId)
+    {
+        var id = stringId.ToLongId();
+
+        var entity = await _dbContext.Games
+            .Include(x => x.AwayTeamAthletes)
+            .Include(x => x.HomeTeamAthletes)
+            .Where(x => x.Id == id)
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+        {
+            var error = new ServiceError($"{typeof(Game).Name} not found", $"No {typeof(Game).Name} could be located for id: {id}", 404);
+            return new ServiceResult<Game>(error);
+        }
+
+        return new ServiceResult<Game>(entity);
+    }
+
     public async Task<ServiceResult<Game>> Create(GameViewModel model)
     {
         var entity = model.Map();

@@ -7,4 +7,6 @@ public class Game
     public string HomeTeam { get; set; } = null!;
     public string AwayTeam { get; set; } = null!;
     public string? Location { get; set; }
+    public ICollection<Athlete> HomeTeamAthletes { get; set; } = null!;
+    public ICollection<Athlete> AwayTeamAthletes { get; set; } = null!;
 }

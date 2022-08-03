@@ -54,6 +54,28 @@ public class GamesController : ControllerBase
         return UnprocessableEntity(result.Error);
     }
 
+    [HttpPatch, Route("{gameId}/home-team/athletes/{athleteId}")]
+    public async Task<IActionResult> AddAthleteToHomeTeam([FromRoute] string gameId, string athleteId)
+    {
+        var result = await _service.AddAthlete(gameId, athleteId, isHomeTeam: true);
+
+        if (result.Success && result.Content != null)
+            return Ok(new GameResult(result.Content));
+
+        return UnprocessableEntity(result.Error);
+    }
+
+    [HttpPatch, Route("{gameId}/away-team/athletes/{athleteId}")]
+    public async Task<IActionResult> AddAthleteToAwayTeam([FromRoute] string gameId, string athleteId)
+    {
+        var result = await _service.AddAthlete(gameId, athleteId, isHomeTeam: false);
+
+        if (result.Success && result.Content != null)
+            return Ok(new GameResult(result.Content));
+
+        return UnprocessableEntity(result.Error);
+    }
+
     [HttpDelete, Route("{id}")]
     public async Task<IActionResult> Remove([FromRoute] string id)
     {

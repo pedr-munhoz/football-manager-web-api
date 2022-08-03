@@ -139,7 +139,7 @@ public class GamesService
 
         if (athlete == null)
         {
-            var error = new ServiceError($"{typeof(Athlete).Name} not found", $"No {typeof(Athlete).Name} could be located for id: {athleteIdLong}", 404);
+            var error = new ServiceError($"{typeof(Athlete).Name} not found", $"No {typeof(Athlete).Name} could be located for id: {athleteIdLong} on {typeof(Game).Name} id: {gameIdLong}", 404);
             return new ServiceResult<Game>(error);
         }
 

@@ -29,6 +29,17 @@ public class GamesController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet, Route("{id}")]
+    public async Task<IActionResult> Get([FromRoute] string id)
+    {
+        var result = await _service.Find(id);
+
+        if (result.Success && result.Content != null)
+            return Created($"/{result.Content.Id}", new GameDetailResult(result.Content));
+
+        return NotFound(result.Error);
+    }
+
     [HttpPost, Route("")]
     public async Task<IActionResult> Create([FromBody] GameViewModel model)
     {
@@ -50,6 +61,28 @@ public class GamesController : ControllerBase
 
         if (result.Error != null && result.Error.Code == 404)
             return NotFound(result.Error);
+
+        return UnprocessableEntity(result.Error);
+    }
+
+    [HttpPost, Route("{gameId}/athletes/{athleteId}")]
+    public async Task<IActionResult> AddAthlete([FromRoute] string gameId, string athleteId)
+    {
+        var result = await _service.AddAthlete(gameId, athleteId);
+
+        if (result.Success && result.Content != null)
+            return Ok(new AthleteResult(result.Content));
+
+        return UnprocessableEntity(result.Error);
+    }
+
+    [HttpDelete, Route("{gameId}/athletes/{athleteId}")]
+    public async Task<IActionResult> RemoveAthlete([FromRoute] string gameId, string athleteId)
+    {
+        var result = await _service.RemoveAthlete(gameId, athleteId);
+
+        if (result.Success && result.Content != null)
+            return NoContent();
 
         return UnprocessableEntity(result.Error);
     }

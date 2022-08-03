@@ -23,6 +23,24 @@ public class GamesService
         return new ServiceListResult<Game>(itens, count);
     }
 
+    public async Task<ServiceResult<Game>> Find(string stringId)
+    {
+        var id = stringId.ToLongId();
+
+        var entity = await _dbContext.Games
+            .Include(x => x.Athletes)
+            .Where(x => x.Id == id)
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+        {
+            var error = new ServiceError($"{typeof(Game).Name} not found", $"No {typeof(Game).Name} could be located for id: {id}", 404);
+            return new ServiceResult<Game>(error);
+        }
+
+        return new ServiceResult<Game>(entity);
+    }
+
     public async Task<ServiceResult<Game>> Create(GameViewModel model)
     {
         var entity = model.Map();
@@ -55,6 +73,80 @@ public class GamesService
         await _dbContext.SaveChangesAsync();
 
         return new ServiceResult<Game>(entity);
+    }
+
+    public async Task<ServiceResult<Athlete>> AddAthlete(string gameId, string athleteId)
+    {
+        ArgumentNullException.ThrowIfNull(gameId);
+        ArgumentNullException.ThrowIfNull(athleteId);
+
+        var gameIdLong = gameId.ToLongId();
+        var athleteIdLong = athleteId.ToLongId();
+
+        var game = await _dbContext.Games
+            .Include(x => x.Athletes)
+            .Where(x => x.Id == gameIdLong)
+            .FirstOrDefaultAsync();
+
+        if (game == null)
+        {
+            var error = new ServiceError($"{typeof(Game).Name} not found", $"No {typeof(Game).Name} could be located for id: {gameIdLong}", 404);
+            return new ServiceResult<Athlete>(error);
+        }
+
+        var athlete = await _dbContext.Athletes
+            .Where(x => x.Id == athleteIdLong)
+            .FirstOrDefaultAsync();
+
+        if (athlete == null)
+        {
+            var error = new ServiceError($"{typeof(Athlete).Name} not found", $"No {typeof(Athlete).Name} could be located for id: {athleteIdLong}", 404);
+            return new ServiceResult<Athlete>(error);
+        }
+
+        if (game.Athletes.Any(x => x.Id == athleteIdLong))
+        {
+            var error = new ServiceError($"{typeof(Athlete).Name} already exists", $"{typeof(Athlete).Name} with id: {athleteIdLong} already exists in {typeof(Game).Name} with id: {gameIdLong}", 400);
+            return new ServiceResult<Athlete>(error);
+        }
+
+        game.Athletes.Add(athlete);
+        await _dbContext.SaveChangesAsync();
+
+        return new ServiceResult<Athlete>(athlete);
+    }
+
+    public async Task<ServiceResult<Game>> RemoveAthlete(string gameId, string athleteId)
+    {
+        ArgumentNullException.ThrowIfNull(gameId);
+        ArgumentNullException.ThrowIfNull(athleteId);
+
+        var gameIdLong = gameId.ToLongId();
+        var athleteIdLong = athleteId.ToLongId();
+
+        var game = await _dbContext.Games
+            .Include(x => x.Athletes)
+            .Where(x => x.Id == gameIdLong)
+            .FirstOrDefaultAsync();
+
+        if (game == null)
+        {
+            var error = new ServiceError($"{typeof(Game).Name} not found", $"No {typeof(Game).Name} could be located for id: {gameIdLong}", 404);
+            return new ServiceResult<Game>(error);
+        }
+
+        var athlete = game.Athletes.Where(x => x.Id == athleteIdLong).FirstOrDefault();
+
+        if (athlete == null)
+        {
+            var error = new ServiceError($"{typeof(Athlete).Name} not found", $"No {typeof(Athlete).Name} could be located for id: {athleteIdLong} on {typeof(Game).Name} id: {gameIdLong}", 404);
+            return new ServiceResult<Game>(error);
+        }
+
+        game.Athletes.Remove(athlete);
+        await _dbContext.SaveChangesAsync();
+
+        return new ServiceResult<Game>(game);
     }
 
     public async Task<ServiceResult<Game>> Remove(string stringId)
